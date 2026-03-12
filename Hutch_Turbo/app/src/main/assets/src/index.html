@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hutch Turbo Booster</title>
+  <!-- Bootstrap CSS (CDN) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Bootstrap Icons (CDN) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <!-- Google Fonts -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap"
+    rel="stylesheet" />
+  <!-- Chart.js (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- App Styles -->
+  <link rel="stylesheet" href="style.css" />
+  <script>
+    // Immediate Error Logging & Mobile Menu Support
+    window.onerror = function (msg, url, line) {
+      console.error("APP_ERROR: " + msg + " at " + url + ":" + line);
+      return false;
+    };
+
+    // Immediate Menu Toggle (Guaranteed to work even if renderer.js fails)
+    window.toggleMobileMenu = function () {
+      var sidebar = document.getElementById('sidebar');
+      if (sidebar) {
+        sidebar.classList.toggle('mobile-active');
+      }
+    };
+  </script>
+</head>
+
+<body>
+  <div class="app-container">
+    <!-- ── Custom Titlebar ── -->
+
+    <!-- ── Main Dashboard ── -->
+    <div class="d-flex flex-grow-1 overflow-hidden">
+      <!-- Sidebar -->
+      <aside id="sidebar" class="sidebar d-flex flex-column p-3">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+          <div class="logo-area d-flex align-items-center gap-2">
+            <i class="bi bi-lightning-charge-fill neon-text"></i>
+            <span class="logo orbitron fw-bold">HUTCH</span>
+          </div>
+          <div class="d-flex gap-2">
+            <button id="sidebar-collapse-btn" class="sidebar-toggle d-none d-md-flex">
+              <i class="bi bi-chevron-double-left"></i>
+            </button>
+            <button id="sidebar-close-btn" class="sidebar-toggle d-md-none text-danger">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="nav flex-column mb-3">
+          <button class="nav-item active mb-1" data-view="home" title="Dashboard">
+            <i class="bi bi-speedometer2 me-2"></i><span>Dashboard</span>
+          </button>
+          <button class="nav-item mb-1" id="settings-btn" data-view="settings" title="Settings">
+            <i class="bi bi-gear-fill me-2"></i><span>Settings</span>
+          </button>
+        </nav>
+        <!-- Status Indicators -->
+        <div class="status-section mb-3">
+          <div class="section-label mb-2">STATUS</div>
+          <div class="indicator d-flex align-items-center gap-2 mb-2" id="turbo-active">
+            <span class="dot"></span> <span>Turbo Traffic</span>
+          </div>
+          <div class="indicator d-flex align-items-center gap-2" id="refresh-running">
+            <span class="dot"></span> <span>Hutch Refresh</span>
+          </div>
+        </div>
+        <!-- Adapter Badge -->
+        <div class="adapter-badge mb-3 p-2 rounded">
+          <div class="section-label">ADAPTER</div>
+          <div id="adapter-name" class="adapter-text mt-1">
+            <i class="bi bi-wifi me-1"></i><span>Scanning...</span>
+          </div>
+        </div>
+        <!-- Clock -->
+        <div class="time-container mt-auto pt-3">
+          <div id="current-time" class="clock-display">00:00:00</div>
+          <div class="clock-label">LOCAL TIME</div>
+        </div>
+      </aside>
+      <!-- Main Content -->
+      <main class="main-content flex-grow-1">
+        <!-- Dashboard Header (Sticky) -->
+        <header class="app-header d-flex align-items-center gap-3 px-3 py-2">
+          <!-- Mobile Menu Icon (Now inside header) -->
+          <button id="mobile-menu-toggle" class="mobile-menu-header-toggle d-md-none"
+            onclick="if(window.toggleMobileMenu) window.toggleMobileMenu()">
+            <i class="bi bi-list"></i>
+          </button>
+
+          <div class="header-logo-icon">
+            <i class="bi bi-lightning-charge-fill neon-text"></i>
+          </div>
+          <div class="header-text">
+            <h1 class="orbitron fw-bold m-0 gradient-text">HUTCH TURBO</h1>
+            <div class="header-subtitle rajdhani text-uppercase">High-Speed Network Engine</div>
+          </div>
+        </header>
+
+        <div class="dashboard-body p-3">
+          <!-- Stats Row -->
+          <div class="row g-3 mb-3">
+            <!-- Download Speed -->
+            <div class="col-md-4">
+              <div class="stat-card neon-green h-100">
+                <div class="card-inner p-3 h-100 d-flex flex-column">
+                  <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="stat-label">
+                      <i class="bi bi-arrow-down-circle-fill me-1"></i> DOWNLOAD
+                    </span>
+                    <span class="stat-badge badge-green">LIVE</span>
+                  </div>
+                  <div class="stat-value orbitron mb-2">
+                    <span id="dl-speed">0.0</span><small class="unit"> MB/s</small>
+                  </div>
+                  <div class="progress mb-2" style="height: 5px; background: rgba(255, 255, 255, 0.06)">
+                    <div class="progress-bar dl-progress" id="dl-bar" role="progressbar" style="width: 0%"></div>
+                  </div>
+                  <div class="stat-footer mt-auto">
+                    <i class="bi bi-bar-chart-fill me-1"></i> Peak:
+                    <span id="peak-dl">0.0</span> MB/s
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Upload Speed -->
+            <div class="col-md-4">
+              <div class="stat-card orange h-100">
+                <div class="card-inner p-3 h-100 d-flex flex-column">
+                  <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="stat-label">
+                      <i class="bi bi-arrow-up-circle-fill me-1"></i> UPLOAD
+                    </span>
+                    <span class="stat-badge badge-orange">LIVE</span>
+                  </div>
+                  <div class="stat-value orbitron mb-2">
+                    <span id="ul-speed">0.0</span><small class="unit"> MB/s</small>
+                  </div>
+                  <div class="progress mb-2" style="height: 5px; background: rgba(255, 255, 255, 0.06)">
+                    <div class="progress-bar ul-progress" id="ul-bar" role="progressbar" style="width: 0%"></div>
+                  </div>
+                  <div class="stat-footer mt-auto">
+                    <i class="bi bi-bar-chart-fill me-1"></i> Peak:
+                    <span id="peak-ul">0.0</span> MB/s
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Total Usage -->
+            <div class="col-md-4">
+              <div class="stat-card blue h-100">
+                <div class="card-inner p-3 h-100 d-flex flex-column">
+                  <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="stat-label">
+                      <i class="bi bi-hdd-network-fill me-1"></i> TOTAL USAGE
+                    </span>
+                    <span class="stat-badge badge-blue"><span id="update-counter">0</span> UPDATES</span>
+                  </div>
+                  <div class="d-flex flex-column gap-2 flex-grow-1 justify-content-center">
+                    <div class="usage-item d-flex justify-content-between align-items-center">
+                      <span class="usage-label"><i class="bi bi-arrow-down text-success me-1"></i>Download</span>
+                      <span id="total-dl" class="usage-value orbitron">0.00 MB</span>
+                    </div>
+                    <hr class="usage-divider my-1" />
+                    <div class="usage-item d-flex justify-content-between align-items-center">
+                      <span class="usage-label"><i class="bi bi-arrow-up text-warning me-1"></i>Upload</span>
+                      <span id="total-ul" class="usage-value orbitron">0.00 MB</span>
+                    </div>
+                  </div>
+                  <div class="stat-footer mt-auto">
+                    <i class="bi bi-clock-history me-1"></i> Session data
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Speed Graph -->
+          <div class="row g-3 mb-3">
+            <div class="col-12">
+              <div class="graph-card p-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="section-label">REAL-TIME SPEED GRAPH</span>
+                  <div class="d-flex gap-3">
+                    <span class="legend-item"><span class="legend-dot dl-dot"></span> Download</span>
+                    <span class="legend-item"><span class="legend-dot ul-dot"></span> Upload</span>
+                  </div>
+                </div>
+                <div style="height: 140px; position: relative">
+                  <canvas id="speed-graph"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Control Buttons -->
+          <div class="row g-3 mb-3">
+            <div class="col-6">
+              <button id="start-turbo" class="btn-action btn-start w-100">
+                <i class="bi bi-play-circle-fill me-2"></i>START TURBO
+              </button>
+            </div>
+            <div class="col-6">
+              <button id="stop-turbo" class="btn-action btn-stop w-100" disabled>
+                <i class="bi bi-stop-circle-fill me-2"></i>STOP TURBO
+              </button>
+            </div>
+          </div>
+          <!-- Activity Log -->
+          <div class="row g-3">
+            <div class="col-12">
+              <div class="console-panel">
+                <div class="console-header d-flex align-items-center justify-content-between px-3 py-2">
+                  <span><i class="bi bi-terminal-fill me-2"></i>ACTIVITY LOG</span>
+                  <button id="clear-log-btn" class="btn-clear-log">
+                    <i class="bi bi-trash3"></i> CLEAR
+                  </button>
+                </div>
+                <div class="console-output" id="log-output">
+                  <div class="log-entry system">
+                    <i class="bi bi-info-circle me-1"></i> System ready.
+                    Awaiting turbo activation...
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+      </main>
+    </div>
+  </div>
+  <!-- ── Settings Modal ── -->
+  <div id="settings-modal" class="modal-overlay">
+    <div class="modal-glass">
+      <div class="modal-header-custom d-flex align-items-center justify-content-between mb-4">
+        <h5 class="orbitron neon-text mb-0">
+          <i class="bi bi-gear-wide-connected me-2"></i>SETTINGS
+        </h5>
+        <button class="control-btn close-btn close-modal">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="modal-body-custom">
+        <!-- Modal Navigation -->
+        <div class="d-flex gap-2 mb-4">
+          <button class="theme-btn active flex-fill modal-tab-btn" data-modal-view="settings-tab">
+            <i class="bi bi-sliders me-1"></i> Settings
+          </button>
+          <button class="theme-btn flex-fill modal-tab-btn" data-modal-view="about-tab">
+            <i class="bi bi-info-circle me-1"></i> About
+          </button>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settings-tab" class="modal-tab-content">
+          <div class="mb-3">
+            <label class="form-label setting-label">
+              <i class="bi bi-cpu me-1"></i> Network Adapter
+            </label>
+            <select id="adapter-select" class="form-select form-select-dark">
+              <option value="auto">Auto-detect</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label setting-label">
+              <i class="bi bi-clock me-1"></i> Refresh Interval (ms)
+            </label>
+            <input type="number" id="interval-input" class="form-control form-control-dark" value="1000" min="500"
+              max="10000" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label setting-label">
+              <i class="bi bi-palette me-1"></i> Theme
+            </label>
+            <div class="d-flex gap-2">
+              <button class="theme-btn active flex-fill" data-theme="dark">
+                <i class="bi bi-moon-stars-fill me-1"></i> Dark
+              </button>
+              <button class="theme-btn flex-fill" data-theme="light">
+                <i class="bi bi-sun-fill me-1"></i> Light
+              </button>
+            </div>
+          </div>
+          <button class="btn-action btn-start w-100 mt-3 close-modal">
+            <i class="bi bi-check2-circle me-2"></i>Apply & Close
+          </button>
+        </div>
+
+        <!-- About Tab -->
+        <div id="about-tab" class="modal-tab-content d-none">
+          <div class="text-center mb-4">
+            <img src="../Assets/icon.png" alt="App Logo" class="about-logo mb-3" />
+            <h4 class="orbitron neon-text mb-1">HUTCH TURBO</h4>
+            <p class="text-secondary small mb-3">Next-Gen Network Utility</p>
+          </div>
+          <div class="about-details bg-dark-subtle p-3 rounded border border-secondary-subtle">
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted small">CREATOR:</span>
+              <span class="text-primary fw-bold small">E.P.Niwantha Sandaruwan</span>
+            </div>
+            <div class="d-flex justify-content-between mb-3">
+              <span class="text-muted small">VERSION:</span>
+              <span class="text-primary fw-bold small">2026.3.5V</span>
+            </div>
+            <div class="about-desc">
+              <span class="text-muted d-block small mb-1">WHAT THIS APPLICATION DO?</span>
+              <p class="text-secondary small m-0" style="font-style: italic; line-height: 1.4">
+                Hutch Turbo Booster is a high-performance network utility
+                designed to optimize and monitor internet speeds on the Hutch
+                network. It provides real-time speed tracking, traffic
+                analytics, and an automated turbo refresh mechanism to ensure
+                peak performance for your connection.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- App Script -->
+  <script src="renderer.js"></script>
+</body>
+
+</html>
